@@ -1,117 +1,125 @@
+import java.util.*;
+import java.lang.*;
 
-import java.awt.*;
-import javax.swing.*;
-
-/**
- * Class HangMan - write a description of the class here
- * 
- * @author (your name) 
- * @version (a version number)
- */
-public class HangMan extends JApplet
+public class Hangman 
 {
-    // instance variables - replace the example below with your own
-    private int x;
-
-    /**
-     * Called by the browser or applet viewer to inform this JApplet that it
-     * has been loaded into the system. It is always called before the first 
-     * time that the start method is called.
-     */
-    public void init()
+    private int max=0;
+    public static void main(String[] args) 
     {
-        // this is a workaround for a security conflict with some browsers
-        // including some versions of Netscape & Internet Explorer which do 
-        // not allow access to the AWT system event queue which JApplets do 
-        // on startup to check access. May not be necessary with your browser. 
-        JRootPane rootPane = this.getRootPane();    
-        rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-    
-        // provide any initialisation necessary for your JApplet
+
+        //create instance things and lists you'll need later
+
+        Word a=new NameWord("michael", "Proper Noun", "First Letter is M");
+        Word b=new NameWord("david", "Proper Noun", "First Letter is D");
+        ArrayList<Word> words=new ArrayList<Word>();
+        words.add(a);
+        words.add(b);
+        String next="y";
+        while (next.equals("Y") || next.equals("y"))
+        {
+            int index=(int)(Math.random()*words.size());
+            Word WORD=words.get(index);
+            char[] letters=WORD.getWord().toCharArray();
+            List wrong = new ArrayList();
+            char[] progress= new char[WORD.getNumLetters()];
+            for(int i=0;i<progress.length;i++)
+            {
+                progress[i]="_".charAt(0);
+            }
+
+            Scanner scan1=new Scanner (System.in);
+            System.out.println("Enter 1 for easy, enter 2 for hard: ");
+            int choice=scan1.nextInt();
+            Hangman hangman1=new Hangman();
+            hangman1.changeDifficulty(choice); 
+            //where the main things happen
+            int count=0;
+            System.out.println("\n\nPart of Speech: " + WORD.getPartOfSpeech());
+
+            while(count<hangman1.max)
+            {           
+                Scanner scan=new Scanner(System.in);
+                System.out.println("\n \n \nGuess a letter: ");   
+                String guess1=scan.nextLine();
+                char guess=guess1.charAt(0);
+                if(guess1.length()!=1){
+                    System.out.println("\n \nPlease enter a letter");
+                    guess=0;
+                }
+                boolean correct=false;
+                
+                System.out.println("Your current progress is: "); 
+                for(int i=0;i<letters.length;i++)
+                {
+                    if(letters[i]==guess)
+                    {
+                        progress[i]=guess;
+                        correct=true;
+                    }
+                    System.out.print(progress[i]);
+                }
+                if(correct==false)
+                {
+                    wrong.add(guess);
+                    count++;
+                }
+                System.out.print("\t\tGuesses Left: " + (hangman1.max-count));
+                System.out.println("\nYou have guessed: ");   
+                for(int i=0;i<wrong.size();i++)
+                {
+                    System.out.print(wrong.get(i) + " ");
+                }
+                if(correct==false)
+                {
+                    if (count==3)
+                    {
+                        System.out.println("\n\nCLUE:"+ WORD.hint1());
+                    }
+                    else if(count==4)
+                    {
+                        System.out.println("\n\nCLUE:"+ WORD.hint2());
+                    }
+                    else if(count==5)
+                    {
+                        System.out.println("\n\nCLUE:"+ WORD.hintCategory());
+                    }
+                    else if(count==6)
+                    {
+                        System.out.println("\n\nCLUE:"+ WORD.getFinalHint());
+                    }
+                }
+
+                if (Arrays.equals( letters,  progress))
+                {
+                    System.out.println ("\n\nCongrats, you have guessed the word");
+                    count=hangman1.max;
+                    words.remove(index);
+
+                }
+
+            }
+            if (!Arrays.equals( letters,  progress))
+            {
+                System.out.println("\nYou Lost!!!\n");
+                System.out.println("The word was: " + WORD.getWord() + "\n");
+            }
+            System.out.println("Keep Going? Enter Y or N ");
+            Scanner scan = new Scanner(System.in);
+            next = scan.nextLine();
+            
+        }
+        System.exit(0);
     }
 
-    /**
-     * Called by the browser or applet viewer to inform this JApplet that it 
-     * should start its execution. It is called after the init method and 
-     * each time the JApplet is revisited in a Web page. 
-     */
-    public void start()
+    public void changeDifficulty(int choice1)
     {
-        // provide any code requred to run each time 
-        // web page is visited
-    }
-
-    /** 
-     * Called by the browser or applet viewer to inform this JApplet that
-     * it should stop its execution. It is called when the Web page that
-     * contains this JApplet has been replaced by another page, and also
-     * just before the JApplet is to be destroyed. 
-     */
-    public void stop()
-    {
-        // provide any code that needs to be run when page
-        // is replaced by another page or before JApplet is destroyed 
-    }
-
-    /**
-     * Paint method for applet.
-     * 
-     * @param  g   the Graphics object for this applet
-     */
-    public void paint(Graphics g)
-    {
-        // simple text displayed on applet
-        g.setColor(Color.white);
-        g.fillRect(0, 0, 200, 100);
-        g.setColor(Color.black);
-        g.drawString("Sample Applet", 20, 20);
-        g.setColor(Color.blue);
-        g.drawString("created by BlueJ", 20, 40);
-    }
-
-    /**
-     * Called by the browser or applet viewer to inform this JApplet that it
-     * is being reclaimed and that it should destroy any resources that it
-     * has allocated. The stop method will always be called before destroy. 
-     */
-    public void destroy()
-    {
-        // provide code to be run when JApplet is about to be destroyed.
-    }
-
-
-    /**
-     * Returns information about this applet. 
-     * An applet should override this method to return a String containing 
-     * information about the author, version, and copyright of the JApplet.
-     *
-     * @return a String representation of information about this JApplet
-     */
-    public String getAppletInfo()
-    {
-        // provide information about the applet
-        return "Title:   \nAuthor:   \nA simple applet example description. ";
-    }
-
-
-    /**
-     * Returns parameter information about this JApplet. 
-     * Returns information about the parameters than are understood by this JApplet.
-     * An applet should override this method to return an array of Strings 
-     * describing these parameters. 
-     * Each element of the array should be a set of three Strings containing 
-     * the name, the type, and a description.
-     *
-     * @return a String[] representation of parameter information about this JApplet
-     */
-    public String[][] getParameterInfo()
-    {
-        // provide parameter information about the applet
-        String paramInfo[][] = {
-                 {"firstParameter",    "1-10",    "description of first parameter"},
-                 {"status", "boolean", "description of second parameter"},
-                 {"images",   "url",     "description of third parameter"}
-        };
-        return paramInfo;
+        if (choice1==1)
+        {
+            max=10;
+        }
+        else if (choice1==2)
+        {
+            max=7;
+        }
     }
 }
